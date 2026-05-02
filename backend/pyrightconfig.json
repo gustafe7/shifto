@@ -1,0 +1,10 @@
+{
+  "venvPath": ".",
+  "venv": "venv",
+  "pythonVersion": "3.12",
+  "pythonPath": "./venv/Scripts/python.exe",
+  "include": ["."],
+  "extraPaths": [
+    "C:/Users/gusta/OneDrive/Documentos/shifto/backend"
+  ]
+}

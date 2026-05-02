@@ -1,0 +1,17 @@
+# Ambiente virtual
+backend/venv/
+
+# Variáveis de ambiente
+backend/.env
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code
+.vscode/
+
+# Sistema
+.DS_Store
+Thumbs.db
