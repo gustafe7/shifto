@@ -44,6 +44,6 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
-    if not user or not verify_password(data.password, user.password):
+    if not user or not verify_password(data.password, str(user.password)):
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
     return {"access_token": create_token(str(user.id)), "token_type": "bearer"}

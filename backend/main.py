@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
 from routers import auth
+from routers import auth, preferences
+from routers import auth, preferences, releases
 
 app = FastAPI(title="SHIFTO API", version="1.0.0")
 
@@ -16,6 +18,8 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 app.include_router(auth.router)
+app.include_router(preferences.router)
+app.include_router(releases.router)
 
 @app.get("/")
 def root():
