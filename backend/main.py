@@ -4,8 +4,16 @@ from database import Base, engine
 from routers import auth
 from routers import auth, preferences
 from routers import auth, preferences, releases
+from scheduler import start_scheduler
+from contextlib import asynccontextmanager
 
-app = FastAPI(title="SHIFTO API", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_scheduler()  # inicia o scheduler quando o servidor sobe
+    yield
+    # código aqui roda quando o servidor desliga (opcional)
+
+app = FastAPI(title="SHIFTO API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
