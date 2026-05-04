@@ -1,0 +1,39 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #111118;
+  --bg-input: #1a1a24;
+  --border: #1e1e2e;
+  --text-primary: #ffffff;
+  --text-secondary: #888;
+  --brand: #1D9E75;
+  --brand-hover: #17856200;
+  --danger: #e24b4a;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+}
+
+/* mobile first — base é mobile */
+.container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* tablet e desktop */
+@media (min-width: 768px) {
+  .container {
+    max-width: 960px;
+  }
+}

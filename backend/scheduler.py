@@ -5,7 +5,7 @@ from database import SessionLocal
 from models.preference import Preference
 from models.release import Release
 import asyncio
-from services import rawg, tmdb, spotify
+from services import deezer, rawg, tmdb
 
 # Função principal que busca e salva lançamentos novos
 def fetch_and_save_releases():
@@ -32,7 +32,7 @@ def fetch_and_save_releases():
             results.extend(movies)
 
         if has_albums:
-            albums = asyncio.run(spotify.get_new_releases())
+            albums = asyncio.run(deezer.get_new_releases())
             results.extend(albums)
 
         # Salva apenas lançamentos que ainda não existem no banco
