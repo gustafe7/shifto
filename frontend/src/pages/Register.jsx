@@ -42,7 +42,10 @@ export default function Register() {
       <div style={S.wrapper}>
         {/* branding */}
         <div style={S.brand}>
-          <h1 style={S.brandLogo}>SHIFTO</h1>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+            <i className="fa-solid fa-dragon" style={{ fontSize: '70px', color: '#4f46e5', marginBottom: '4px' }} />
+            <h1 style={{ ...S.brandLogo, marginBottom: 0 }}>SHIFTO</h1>
+          </div>
           <p style={S.brandTagline}>Crie sua conta e personalize seu feed de lançamentos.</p>
           <div style={S.brandTags}>
             {['🎮 Jogos', '🎬 Filmes', '🎵 Músicas'].map(t => (
