@@ -4,23 +4,23 @@ import { register, login } from '../services/auth'
 
 export default function Register() {
   const navigate = useNavigate()
-
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [emailNotifications, setEmailNotifications] = useState(true)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [focused, setFocused] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     try {
-      await register(name, email, password)
-      // após registrar, já faz login automático
+      // passa a preferência de notificação para o backend
+      await register(name, email, password, emailNotifications)
       await login(email, password)
-      navigate('/preferences') // novo usuário vai direto para configurar preferências
+      navigate('/preferences')
     } catch (err) {
       setError(err.response?.data?.detail || 'Erro ao criar conta')
     } finally {
@@ -28,122 +28,359 @@ export default function Register() {
     }
   }
 
+  const inputStyle = (name) => ({
+    ...S.input,
+    borderColor: focused === name ? '#4f46e5' : 'rgba(255,255,255,0.08)',
+    boxShadow: focused === name ? '0 0 0 3px rgba(79,70,229,0.15)' : 'none',
+  })
+
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <h1 style={styles.logo}>SHIFTO</h1>
-        <p style={styles.subtitle}>Crie sua conta e personalize seu feed</p>
+    <div style={S.root}>
+      <div style={S.bgGrid} />
+      <div style={S.bgGlow} />
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <input
-            style={styles.input}
-            type="text"
-            placeholder="Nome"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <input
-            style={styles.input}
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            style={styles.input}
-            type="password"
-            placeholder="Senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+      <div style={S.wrapper}>
+        {/* branding */}
+        <div style={S.brand}>
+          <h1 style={S.brandLogo}>SHIFTO</h1>
+          <p style={S.brandTagline}>Crie sua conta e personalize seu feed de lançamentos.</p>
+          <div style={S.brandTags}>
+            {['🎮 Jogos', '🎬 Filmes', '🎵 Músicas'].map(t => (
+              <span key={t} style={S.tag}>{t}</span>
+            ))}
+          </div>
+        </div>
 
-          {error && <p style={styles.error}>{error}</p>}
+        {/* form */}
+        <div style={S.card}>
+          <h2 style={S.cardTitle}>Criar conta</h2>
+          <p style={S.cardSub}>Rápido e gratuito</p>
 
-          <button style={styles.button} type="submit" disabled={loading}>
-            {loading ? 'Criando conta...' : 'Criar conta'}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} style={S.form}>
+            <div style={S.field}>
+              <label style={S.label}>Nome</label>
+              <div style={{ position: 'relative' }}>
+                <span style={S.fieldIcon}>👤</span>
+                <input
+                  style={{ ...inputStyle('name'), paddingLeft: '40px' }}
+                  type="text"
+                  placeholder="Seu nome"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  onFocus={() => setFocused('name')}
+                  onBlur={() => setFocused(null)}
+                  required
+                />
+              </div>
+            </div>
 
-        <p style={styles.link}>
-          Já tem conta?{' '}
-          <Link to="/login" style={styles.linkAnchor}>Entrar</Link>
-        </p>
+            <div style={S.field}>
+              <label style={S.label}>Email</label>
+              <div style={{ position: 'relative' }}>
+                <span style={S.fieldIcon}>✉</span>
+                <input
+                  style={{ ...inputStyle('email'), paddingLeft: '40px' }}
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  onFocus={() => setFocused('email')}
+                  onBlur={() => setFocused(null)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div style={S.field}>
+              <label style={S.label}>Senha</label>
+              <div style={{ position: 'relative' }}>
+                <span style={S.fieldIcon}>🔒</span>
+                <input
+                  style={{ ...inputStyle('password'), paddingLeft: '40px' }}
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  onFocus={() => setFocused('password')}
+                  onBlur={() => setFocused(null)}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* checkbox de notificações */}
+            <div style={S.checkboxRow} onClick={() => setEmailNotifications(!emailNotifications)}>
+              <div style={{
+                ...S.checkbox,
+                background: emailNotifications ? '#4f46e5' : 'transparent',
+                borderColor: emailNotifications ? '#4f46e5' : 'rgba(255,255,255,0.2)',
+              }}>
+                {emailNotifications && <span style={S.checkmark}>✓</span>}
+              </div>
+              <div>
+                <p style={S.checkboxLabel}>Receber notificações por email</p>
+                <p style={S.checkboxSub}>Avisos de novos lançamentos todo dia às 8h</p>
+              </div>
+            </div>
+
+            {error && (
+              <div style={S.errorBox}>
+                <span>⚠️</span> {error}
+              </div>
+            )}
+
+            <button
+              style={{ ...S.btn, opacity: loading ? 0.7 : 1 }}
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? 'Criando conta...' : 'Criar conta'}
+            </button>
+          </form>
+
+          <div style={S.divider}>
+            <span style={S.dividerLine} />
+            <span style={S.dividerText}>ou</span>
+            <span style={S.dividerLine} />
+          </div>
+
+          <p style={S.footer}>
+            Já tem conta?{' '}
+            <Link to="/login" style={S.link}>Entrar →</Link>
+          </p>
+        </div>
       </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #080810 !important; }
+        input::placeholder { color: rgba(255,255,255,0.2); }
+        input { outline: none; }
+        @keyframes spin { to { transform: rotate(360deg) } }
+      `}</style>
     </div>
   )
 }
 
-const styles = {
-  page: {
+const S = {
+  root: {
     minHeight: '100vh',
+    background: '#080810',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '1rem'
+    padding: '1.5rem',
+    position: 'relative',
+    overflow: 'hidden',
+    fontFamily: "'DM Sans', sans-serif",
+  },
+  bgGrid: {
+    position: 'fixed',
+    inset: 0,
+    backgroundImage: `
+      linear-gradient(rgba(79,70,229,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,70,229,0.04) 1px, transparent 1px)
+    `,
+    backgroundSize: '40px 40px',
+    pointerEvents: 'none',
+  },
+  bgGlow: {
+    position: 'fixed',
+    top: '-20%',
+    right: '-10%',
+    width: '600px',
+    height: '600px',
+    background: 'radial-gradient(circle, rgba(79,70,229,0.12) 0%, transparent 70%)',
+    pointerEvents: 'none',
+  },
+  wrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4rem',
+    width: '100%',
+    maxWidth: '860px',
+    position: 'relative',
+    zIndex: 1,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  brand: {
+    flex: '1',
+    minWidth: '260px',
+    maxWidth: '340px',
+  },
+  brandLogo: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: '64px',
+    letterSpacing: '8px',
+    color: '#4f46e5',
+    lineHeight: 1,
+    marginBottom: '1.25rem',
+  },
+  brandTagline: {
+    fontSize: '20px',
+    fontWeight: '300',
+    color: 'rgba(255,255,255,0.7)',
+    lineHeight: 1.5,
+    marginBottom: '1.5rem',
+  },
+  brandTags: {
+    display: 'flex',
+    gap: '8px',
+    flexWrap: 'wrap',
+  },
+  tag: {
+    padding: '5px 14px',
+    borderRadius: '20px',
+    border: '1px solid rgba(79,70,229,0.3)',
+    color: 'rgba(79,70,229,0.9)',
+    fontSize: '13px',
+    background: 'rgba(79,70,229,0.08)',
   },
   card: {
-    width: '100%',
-    maxWidth: '400px',
-    background: '#111118',
-    border: '1px solid #1e1e2e',
-    borderRadius: '16px',
-    padding: '2rem'
+    flex: '1',
+    minWidth: '300px',
+    maxWidth: '380px',
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '24px',
+    padding: '2.5rem',
+    backdropFilter: 'blur(20px)',
   },
-  logo: {
-    fontSize: '28px',
-    fontWeight: '700',
-    color: '#1D9E75',
-    textAlign: 'center',
-    marginBottom: '8px',
-    letterSpacing: '4px'
+  cardTitle: {
+    fontSize: '26px',
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: '4px',
   },
-  subtitle: {
-    fontSize: '13px',
-    color: '#888',
-    textAlign: 'center',
-    marginBottom: '2rem'
+  cardSub: {
+    fontSize: '14px',
+    color: 'rgba(255,255,255,0.4)',
+    marginBottom: '2rem',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px'
+    gap: '16px',
+  },
+  field: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+  },
+  label: {
+    fontSize: '11px',
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.4)',
+    letterSpacing: '1px',
+    textTransform: 'uppercase',
+  },
+  fieldIcon: {
+    position: 'absolute',
+    left: '13px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    fontSize: '13px',
+    pointerEvents: 'none',
+    opacity: 0.4,
   },
   input: {
-    background: '#1a1a24',
-    border: '1px solid #1e1e2e',
-    borderRadius: '8px',
-    padding: '12px 16px',
+    width: '100%',
+    background: 'rgba(255,255,255,0.04)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '12px',
+    padding: '13px 14px',
     color: '#fff',
     fontSize: '14px',
-    outline: 'none'
+    transition: 'border-color 0.2s, box-shadow 0.2s',
+    fontFamily: "'DM Sans', sans-serif",
   },
-  button: {
-    background: '#1D9E75',
+  checkboxRow: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '12px',
+    cursor: 'pointer',
+    padding: '12px',
+    borderRadius: '12px',
+    border: '1px solid rgba(255,255,255,0.06)',
+    background: 'rgba(255,255,255,0.02)',
+  },
+  checkbox: {
+    width: '20px',
+    height: '20px',
+    borderRadius: '6px',
+    border: '1.5px solid',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    marginTop: '1px',
+    transition: 'all 0.15s',
+  },
+  checkmark: {
+    fontSize: '12px',
+    color: '#fff',
+    fontWeight: '700',
+  },
+  checkboxLabel: {
+    fontSize: '13px',
+    fontWeight: '500',
+    color: '#fff',
+    marginBottom: '2px',
+  },
+  checkboxSub: {
+    fontSize: '11px',
+    color: 'rgba(255,255,255,0.4)',
+  },
+  btn: {
+    background: '#4f46e5',
     border: 'none',
-    borderRadius: '8px',
-    padding: '13px',
+    borderRadius: '12px',
+    padding: '14px',
     color: '#fff',
     fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
-    marginTop: '8px'
+    marginTop: '4px',
+    fontFamily: "'DM Sans', sans-serif",
+    transition: 'opacity 0.2s',
+    letterSpacing: '0.3px',
   },
-  error: {
-    color: '#e24b4a',
+  errorBox: {
+    background: 'rgba(255,77,77,0.1)',
+    border: '1px solid rgba(255,77,77,0.2)',
+    borderRadius: '10px',
+    padding: '10px 14px',
+    color: '#ff6b6b',
     fontSize: '13px',
-    textAlign: 'center'
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  },
+  divider: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    margin: '1.5rem 0 1rem',
+  },
+  dividerLine: {
+    flex: 1,
+    height: '1px',
+    background: 'rgba(255,255,255,0.07)',
+  },
+  dividerText: {
+    fontSize: '12px',
+    color: 'rgba(255,255,255,0.3)',
+  },
+  footer: {
+    fontSize: '13px',
+    color: 'rgba(255,255,255,0.4)',
+    textAlign: 'center',
   },
   link: {
-    fontSize: '13px',
-    color: '#888',
-    textAlign: 'center',
-    marginTop: '1.5rem'
+    color: '#4f46e5',
+    textDecoration: 'none',
+    fontWeight: '500',
   },
-  linkAnchor: {
-    color: '#1D9E75',
-    textDecoration: 'none'
-  }
 }

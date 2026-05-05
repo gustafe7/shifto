@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
@@ -16,6 +16,8 @@ class RegisterRequest(BaseModel):
     name: str
     email: EmailStr
     password: str
+    # padrão True — usuário aceita notificações por email ao se cadastrar
+    email_notifications: bool = True
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -28,14 +30,22 @@ def verify_password(plain: str, hashed: str) -> bool:
     return pwd_context.verify(plain, hashed)
 
 def create_token(user_id: str) -> str:
+    # gera JWT com ID do usuário e prazo de expiração
     expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return jwt.encode({"sub": user_id, "exp": expire}, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 @router.post("/register", status_code=201)
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
+    # verifica se email já está cadastrado
     if db.query(User).filter(User.email == data.email).first():
         raise HTTPException(status_code=400, detail="Email já cadastrado")
-    user = User(name=data.name, email=data.email, password=hash_password(data.password))
+    user = User(
+        name=data.name,
+        email=data.email,
+        password=hash_password(data.password),
+        # salva preferência de notificação do usuário
+        email_notifications=data.email_notifications
+    )
     db.add(user)
     db.commit()
     db.refresh(user)

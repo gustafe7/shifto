@@ -6,9 +6,13 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from database import get_db
 from models.preference import Preference
 from config import settings
+from models.user import User
 
 router = APIRouter(prefix="/preferences", tags=["preferences"])
 security = HTTPBearer()
+
+class NotificationRequest(BaseModel):
+    email_notifications: bool
 
 class PreferenceRequest(BaseModel):
     category: str  # game, movie, series, album
@@ -43,3 +47,22 @@ def delete_preference(preference_id: str, db: Session = Depends(get_db), user_id
     db.delete(pref)
     db.commit()
     return {"message": "Preferência removida"}
+
+@router.put("/notifications")
+def update_notifications(data: NotificationRequest, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
+    # busca o usuário pelo ID do token
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    # setattr evita o aviso do Pylance com colunas SQLAlchemy
+    setattr(user, 'email_notifications', data.email_notifications)
+    db.commit()
+    return {"message": "Preferência de notificação atualizada"}
+
+@router.get("/settings")
+def get_settings(db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
+    # retorna as configurações do usuário logado
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    return {"email_notifications": user.email_notifications}

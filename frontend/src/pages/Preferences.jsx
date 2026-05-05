@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getPreferences, addPreference, deletePreference } from '../services/preferences'
+import { getPreferences, addPreference, deletePreference, updateNotifications, getSettings } from '../services/preferences'
 import { isAuthenticated } from '../services/auth'
 
 const OPTIONS = {
@@ -20,6 +20,7 @@ export default function Preferences() {
   const [preferences, setPreferences] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [emailNotifications, setEmailNotifications] = useState(true)
 
   useEffect(() => {
     if (!isAuthenticated()) { navigate('/login'); return }
@@ -28,8 +29,14 @@ export default function Preferences() {
 
   const fetchPreferences = async () => {
     try {
-      const data = await getPreferences()
+      // busca preferências e configurações em paralelo
+      const [data, settings] = await Promise.all([
+        getPreferences(),
+        getSettings()
+      ])
       setPreferences(data)
+      // carrega o valor real salvo no banco
+      setEmailNotifications(settings.email_notifications)
     } finally {
       setLoading(false)
     }
@@ -53,6 +60,19 @@ export default function Preferences() {
       }
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleNotificationToggle = async () => {
+    const newValue = !emailNotifications
+    // atualiza o estado local imediatamente para feedback visual
+    setEmailNotifications(newValue)
+    try {
+      // persiste no banco
+      await updateNotifications(newValue)
+    } catch {
+      // reverte se der erro na requisição
+      setEmailNotifications(!newValue)
     }
   }
 
@@ -160,6 +180,51 @@ export default function Preferences() {
           cursor: not-allowed;
         }
 
+        .pref-notification {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 16px;
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,0.06);
+          background: rgba(255,255,255,0.02);
+          margin-bottom: 28px;
+          cursor: pointer;
+        }
+
+        .pref-notification-text p {
+          font-size: 14px;
+          font-weight: 500;
+          color: #fff;
+          margin-bottom: 2px;
+        }
+
+        .pref-notification-text span {
+          font-size: 12px;
+          color: rgba(255,255,255,0.4);
+        }
+
+        .pref-toggle {
+          width: 44px;
+          height: 24px;
+          border-radius: 12px;
+          border: none;
+          cursor: pointer;
+          position: relative;
+          transition: background 0.2s;
+          flex-shrink: 0;
+        }
+
+        .pref-toggle-thumb {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #fff;
+          position: absolute;
+          top: 3px;
+          transition: left 0.2s;
+        }
+
         .pref-cta {
           width: 100%;
           background: #4f46e5;
@@ -203,6 +268,23 @@ export default function Preferences() {
           </p>
 
           {loading && <p className="pref-loading">Carregando...</p>}
+
+          {/* toggle de notificações por email */}
+          <div className="pref-notification" onClick={handleNotificationToggle}>
+            <div className="pref-notification-text">
+              <p>🔔 Notificações por email</p>
+              <span>Receba novidades todo dia às 8h</span>
+            </div>
+            <button
+              className="pref-toggle"
+              style={{ background: emailNotifications ? '#4f46e5' : 'rgba(255,255,255,0.1)' }}
+            >
+              <div
+                className="pref-toggle-thumb"
+                style={{ left: emailNotifications ? '23px' : '3px' }}
+              />
+            </button>
+          </div>
 
           {Object.entries(OPTIONS).map(([category, options]) => (
             <div key={category} className="pref-section">

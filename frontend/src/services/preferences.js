@@ -17,3 +17,17 @@ export const deletePreference = async (id) => {
   const response = await api.delete(`/preferences/${id}`)
   return response.data
 }
+
+// atualiza preferência de notificação por email
+export const updateNotifications = async (emailNotifications) => {
+  const response = await api.put('/preferences/notifications', {
+    email_notifications: emailNotifications
+  })
+  return response.data
+}
+
+// busca as configurações do usuário
+export const getSettings = async () => {
+  const response = await api.get('/preferences/settings')
+  return response.data
+}

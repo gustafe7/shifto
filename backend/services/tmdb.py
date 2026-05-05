@@ -7,6 +7,7 @@ BASE_URL = "https://api.themoviedb.org/3"
 async def get_upcoming_movies(genres: list[str]) -> list[dict]:
     results = []
 
+    # filmes dos últimos 90 dias + próximos lançamentos
     past = (date.today() - timedelta(days=90)).isoformat()
     future = (date.today() + timedelta(days=365)).isoformat()
 
@@ -16,16 +17,15 @@ async def get_upcoming_movies(genres: list[str]) -> list[dict]:
                 response = await client.get(f"{BASE_URL}/discover/movie", params={
                     "api_key": settings.TMDB_API_KEY,
                     "language": "pt-BR",
-                    "sort_by": "popularity.desc",         # ordena pelos mais populares
+                    "sort_by": "popularity.desc",
                     "primary_release_date.gte": past,
                     "primary_release_date.lte": future,
-                    "vote_count.gte": 10,                 # filmes com pelo menos 10 votos
-                    "without_genres": "99,10755",         # remove documentários e filmes de família obscuros
+                    "vote_count.gte": 10,
+                    "without_genres": "99,10755",
                     "page": page
                 })
                 if response.status_code == 200:
                     for movie in response.json().get("results", []):
-                        # ignora filmes sem poster
                         if not movie.get("poster_path"):
                             continue
                         results.append({
@@ -33,7 +33,9 @@ async def get_upcoming_movies(genres: list[str]) -> list[dict]:
                             "title": movie["title"],
                             "category": "movie",
                             "release_date": movie.get("release_date"),
-                            "cover_url": f"https://image.tmdb.org/t/p/w500{movie.get('poster_path')}"
+                            "cover_url": f"https://image.tmdb.org/t/p/w500{movie.get('poster_path')}",
+                            # link direto para a página do filme na TMDB
+                            "external_url": f"https://www.themoviedb.org/movie/{movie['id']}"
                         })
             except Exception as e:
                 print(f"[TMDB] Erro na página {page}: {e}")

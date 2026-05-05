@@ -1,8 +1,15 @@
 import api from './api'
 
-// chama o endpoint de registro e retorna os dados
-export const register = async (name, email, password) => {
-  const response = await api.post('/auth/register', { name, email, password })
+// registra o usuário e envia preferência de notificação por email
+// emailNotifications padrão true — usuário aceita notificações ao se cadastrar
+export const register = async (name, email, password, emailNotifications = true) => {
+  const response = await api.post('/auth/register', {
+    name,
+    email,
+    password,
+    // snake_case porque é o padrão do Python/FastAPI
+    email_notifications: emailNotifications
+  })
   return response.data
 }
 

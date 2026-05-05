@@ -11,7 +11,7 @@ const FILTERS = [
 ]
 
 const CATEGORY_COLOR = {
-  game: '#4f46e5',
+  game: '#1DB954',
   movie: '#1877F2',
   album: '#E91E8C',
 }
@@ -79,7 +79,6 @@ export default function Feed() {
           overflow-x: hidden;
         }
 
-        /* ── Navbar ── */
         .shifto-nav {
           display: flex;
           align-items: center;
@@ -129,7 +128,6 @@ export default function Feed() {
           font-family: 'DM Sans', sans-serif;
         }
 
-        /* ── Hero ── */
         .shifto-hero {
           position: relative;
           width: 100%;
@@ -137,6 +135,8 @@ export default function Feed() {
           background-size: cover;
           background-position: center top;
           background-repeat: no-repeat;
+          display: block;
+          text-decoration: none;
         }
         .shifto-hero-overlay {
           position: absolute;
@@ -170,6 +170,7 @@ export default function Feed() {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          color: #fff;
         }
         .shifto-hero-date {
           font-size: 11px;
@@ -177,12 +178,10 @@ export default function Feed() {
           margin-top: 2px;
         }
 
-        /* ── Body ── */
         .shifto-body {
           padding: 12px 16px 80px;
         }
 
-        /* ── Filtros ── */
         .shifto-filters {
           display: flex;
           gap: 6px;
@@ -211,13 +210,19 @@ export default function Feed() {
           font-weight: 600;
         }
 
-        /* ── Grid ── */
         .shifto-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 10px;
         }
-        .shifto-card { animation: fadeUp 0.4s ease both; }
+
+        .shifto-card {
+          animation: fadeUp 0.4s ease both;
+          text-decoration: none;
+          color: inherit;
+          display: block;
+          cursor: pointer;
+        }
         .shifto-card-img {
           position: relative;
           border-radius: 8px;
@@ -231,6 +236,10 @@ export default function Feed() {
           height: 100%;
           object-fit: cover;
           display: block;
+          transition: transform 0.2s ease;
+        }
+        .shifto-card:hover .shifto-card-img img {
+          transform: scale(1.05);
         }
         .shifto-card-fallback {
           width: 100%;
@@ -268,7 +277,6 @@ export default function Feed() {
           color: rgba(255,255,255,0.35);
         }
 
-        /* ── Estados ── */
         .shifto-state {
           text-align: center;
           padding: 3rem 0;
@@ -299,7 +307,6 @@ export default function Feed() {
           font-family: 'DM Sans', sans-serif;
         }
 
-        /* ── Desktop ── */
         @media (min-width: 768px) {
           .shifto-nav { padding: 0 24px; height: 60px; }
           .shifto-logo { font-size: 22px; }
@@ -325,7 +332,6 @@ export default function Feed() {
       `}</style>
 
       <div className="shifto-root">
-        {/* Navbar */}
         <nav className="shifto-nav">
           <span className="shifto-logo">SHIFTO</span>
           <div className="shifto-nav-right">
@@ -337,11 +343,13 @@ export default function Feed() {
           </div>
         </nav>
 
-        {/* Hero */}
         {!loading && hero && filter === 'all' && (
-          <div
+          <a
             className="shifto-hero"
             style={{ backgroundImage: `url(${hero.cover_url})` }}
+            href={hero.external_url}
+            target="_blank"
+            rel="noopener noreferrer"
             ref={heroRef}
           >
             <div className="shifto-hero-overlay" />
@@ -352,11 +360,10 @@ export default function Feed() {
               <h2 className="shifto-hero-title">{hero.title}</h2>
               {hero.release_date && <p className="shifto-hero-date">📅 {hero.release_date}</p>}
             </div>
-          </div>
+          </a>
         )}
 
         <div className="shifto-body">
-          {/* Filtros */}
           <div className="shifto-filters">
             {FILTERS.map(f => (
               <button
@@ -369,7 +376,6 @@ export default function Feed() {
             ))}
           </div>
 
-          {/* Estados */}
           {loading && (
             <div className="shifto-state">
               <div className="shifto-spinner" />
@@ -386,10 +392,15 @@ export default function Feed() {
             </div>
           )}
 
-          {/* Grid */}
           <div className="shifto-grid">
             {rest.map((r, i) => (
-              <div key={`${r.external_id}-${i}`} className="shifto-card">
+              <a
+                key={`${r.external_id}-${i}`}
+                className="shifto-card"
+                href={r.external_url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <div className="shifto-card-img">
                   {r.cover_url
                     ? <img src={r.cover_url} alt={r.title} loading="lazy" />
@@ -401,7 +412,7 @@ export default function Feed() {
                 </div>
                 <p className="shifto-card-title">{r.title}</p>
                 {r.release_date && <p className="shifto-card-date">{r.release_date}</p>}
-              </div>
+              </a>
             ))}
           </div>
         </div>

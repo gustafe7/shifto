@@ -38,13 +38,11 @@ async def get_new_releases(limit: int = 30, genres: list[str] | None = None) -> 
         genre_ids = [132, 152]
 
     async with httpx.AsyncClient(timeout=30.0) as client:
-        # busca até 5 gêneros para não sobrecarregar a API
         for genre_id in genre_ids[:5]:
             try:
-                # endpoint de novidades editoriais — mais relevante que chart
                 response = await client.get(
                     f"https://api.deezer.com/editorial/{genre_id}/releases",
-                    params={"limit": 50}  # busca 50 para ter margem após filtrar
+                    params={"limit": 50}
                 )
                 if response.status_code == 200:
                     for album in response.json().get("data", []):
@@ -58,7 +56,7 @@ async def get_new_releases(limit: int = 30, genres: list[str] | None = None) -> 
                         if not album.get("cover_medium"):
                             continue
 
-                        # ignora singles com título muito curto ou sem artista
+                        # ignora itens sem artista
                         if not album.get("artist", {}).get("name"):
                             continue
 
@@ -68,11 +66,11 @@ async def get_new_releases(limit: int = 30, genres: list[str] | None = None) -> 
                             "category": "album",
                             "release_date": release_date,
                             "cover_url": album.get("cover_medium"),
-                            # tipo do lançamento: album ou single
-                            "record_type": album.get("record_type", "album")
+                            "record_type": album.get("record_type", "album"),
+                            # link direto para o álbum no Deezer
+                            "external_url": f"https://www.deezer.com/album/{album['id']}"
                         })
             except Exception as e:
-                # se um gênero falhar, continua com os outros
                 print(f"[Deezer] Erro no gênero {genre_id}: {e}")
                 continue
 
