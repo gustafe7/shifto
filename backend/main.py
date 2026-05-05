@@ -16,7 +16,7 @@ app = FastAPI(title="SHIFTO API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],  # temporário — restringir após deploy do frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
