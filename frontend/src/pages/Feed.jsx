@@ -24,6 +24,14 @@ const BADGE_LABEL = (release) => {
 
 const PLACEHOLDER_ICON = { game: '🎮', movie: '🎬', album: '🎵' }
 
+// formata data de YYYY-MM-DD para "4 de setembro de 2020"
+const formatDate = (dateStr) => {
+  if (!dateStr) return null
+  const [year, month, day] = dateStr.split('-')
+  const months = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro']
+  return `${parseInt(day)} de ${months[parseInt(month) - 1]} de ${year}`
+}
+
 export default function Feed() {
   const navigate = useNavigate()
   const [releases, setReleases] = useState([])
@@ -92,13 +100,20 @@ export default function Feed() {
           z-index: 100;
           border-bottom: 1px solid rgba(255,255,255,0.06);
         }
+
+        /* logo clicável */
         .shifto-logo {
           font-family: 'Bebas Neue', sans-serif;
-          font-size: 20px;
+          font-size: 24px;
           letter-spacing: 4px;
           color: #4f46e5;
           flex-shrink: 0;
+          cursor: pointer;
+          text-decoration: none;
+          transition: opacity 0.15s;
         }
+        .shifto-logo:hover { opacity: 0.8; }
+
         .shifto-nav-right {
           display: flex;
           gap: 6px;
@@ -230,6 +245,7 @@ export default function Feed() {
           aspect-ratio: 1/1;
           background: #1a1a1a;
           margin-bottom: 6px;
+          transition: box-shadow 0.2s ease;
         }
         .shifto-card-img img {
           width: 100%;
@@ -238,9 +254,21 @@ export default function Feed() {
           display: block;
           transition: transform 0.2s ease;
         }
+
+        /* hover com sombra colorida por categoria */
+        .shifto-card[data-cat="game"]:hover .shifto-card-img {
+          box-shadow: 0 8px 24px rgba(29,185,84,0.4);
+        }
+        .shifto-card[data-cat="movie"]:hover .shifto-card-img {
+          box-shadow: 0 8px 24px rgba(24,119,242,0.4);
+        }
+        .shifto-card[data-cat="album"]:hover .shifto-card-img {
+          box-shadow: 0 8px 24px rgba(233,30,140,0.4);
+        }
         .shifto-card:hover .shifto-card-img img {
           transform: scale(1.05);
         }
+
         .shifto-card-fallback {
           width: 100%;
           height: 100%;
@@ -309,7 +337,7 @@ export default function Feed() {
 
         @media (min-width: 768px) {
           .shifto-nav { padding: 0 24px; height: 60px; }
-          .shifto-logo { font-size: 22px; }
+          .shifto-logo { font-size: 26px; }
           .shifto-btn, .shifto-btn-danger { font-size: 13px; padding: 5px 14px; }
           .shifto-hero { height: 400px; }
           .shifto-hero-title { font-size: 36px; white-space: normal; }
@@ -333,7 +361,10 @@ export default function Feed() {
 
       <div className="shifto-root">
         <nav className="shifto-nav">
-          <span className="shifto-logo">SHIFTO</span>
+          {/* logo clicável — volta para o feed */}
+          <span className="shifto-logo" onClick={() => { setFilter('all'); window.scrollTo(0,0) }}>
+            SHIFTO
+          </span>
           <div className="shifto-nav-right">
             <button className="shifto-btn" onClick={fetchReleases} disabled={loading}>
               {loading ? '⏳' : '🔄'}
@@ -358,7 +389,9 @@ export default function Feed() {
                 {BADGE_LABEL(hero)}
               </span>
               <h2 className="shifto-hero-title">{hero.title}</h2>
-              {hero.release_date && <p className="shifto-hero-date">📅 {hero.release_date}</p>}
+              {hero.release_date && (
+                <p className="shifto-hero-date">📅 {formatDate(hero.release_date)}</p>
+              )}
             </div>
           </a>
         )}
@@ -397,6 +430,7 @@ export default function Feed() {
               <a
                 key={`${r.external_id}-${i}`}
                 className="shifto-card"
+                data-cat={r.category}
                 href={r.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -411,7 +445,9 @@ export default function Feed() {
                   </span>
                 </div>
                 <p className="shifto-card-title">{r.title}</p>
-                {r.release_date && <p className="shifto-card-date">{r.release_date}</p>}
+                {r.release_date && (
+                  <p className="shifto-card-date">{formatDate(r.release_date)}</p>
+                )}
               </a>
             ))}
           </div>
