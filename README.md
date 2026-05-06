@@ -1,20 +1,21 @@
-# SHIFTO — Jogos, Filmes e Músicas
+# SHIFTO
 
 Feed personalizado de lançamentos de jogos, filmes e músicas.
 
+🔗 [shifto-eight.vercel.app](https://shifto-eight.vercel.app)
+
+## O que é
+
+Você escolhe seus gêneros favoritos e o SHIFTO monta um feed com lançamentos recentes e futuros. Opcionalmente, receba um email todo dia às 8h com um destaque de cada categoria — sem repetir o que já foi enviado.
+
 ## Funcionalidades
 
-- Cadastro e login com autenticação JWT
-- Feed personalizado com base nas preferências do usuário
-- Filtro por categoria: jogos, filmes e músicas
-- Hero section clicável com destaque para o lançamento principal
-- Cards clicáveis que redirecionam para RAWG, TMDB e Deezer
-- Preferências por gênero — ação, RPG, pop, rock, drama, etc.
-- Lançamentos filtrados por data e plataforma (PC, PS5, Xbox, Switch)
-- Notificações por email com um destaque de cada categoria (jogo, filme e música)
-- Toggle para ativar/desativar notificações por email nas preferências
-- Scheduler automático que verifica novos lançamentos todo dia às 8h
-- Controle de duplicatas — não notifica o mesmo lançamento duas vezes
+- Autenticação com JWT
+- Feed personalizado por preferências de gênero
+- Filtro por categoria com hero section clicável
+- Cards linkados para RAWG, TMDB e Deezer
+- Notificações por email com scheduler diário
+- Controle de duplicatas por usuário
 - Layout responsivo — mobile first
 
 ## Tecnologias
@@ -39,22 +40,25 @@ Feed personalizado de lançamentos de jogos, filmes e músicas.
 - [TMDB](https://www.themoviedb.org/documentation/api) — filmes
 - [Deezer](https://developers.deezer.com) — músicas
 
-## Como rodar
+### Infraestrutura
+- Backend: [Render](https://render.com)
+- Banco de dados: [Supabase](https://supabase.com) (PostgreSQL)
+- Frontend: [Vercel](https://vercel.com)
 
-### Backend
+## Rodando localmente
+
 ```bash
+# backend
 cd backend
 python -m venv venv
-venv\Scripts\activate  # Windows
+venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn main:app --reload
-```
 
-Crie um `.env` baseado no `.env.example` com suas chaves de API e dados do banco.
-
-### Frontend
-```bash
+# frontend
 cd frontend
 npm install
 npm run dev
 ```
+
+Crie um `.env` na pasta `backend/` com base no `.env.example`.
