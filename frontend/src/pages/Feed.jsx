@@ -362,7 +362,7 @@ export default function Feed() {
       <div className="shifto-root">
         <nav className="shifto-nav">
           {/* logo clicável — volta para o feed */}
-          <span className="shifto-logo" onClick={() => { setFilter('all'); window.scrollTo(0,0) }}>
+          <span className="shifto-logo" onClick={() => { setFilter('all'); window.scrollTo(0,0); fetchReleases() }}>
             SHIFTO
           </span>
           <div className="shifto-nav-right">
